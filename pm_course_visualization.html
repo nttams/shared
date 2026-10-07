@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Management — Visual Course Guide</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-alt: #222636;
+    --accent: #6c63ff;
+    --accent2: #00c9a7;
+    --accent3: #f7797d;
+    --accent4: #ffc371;
+    --text: #e4e4e7;
+    --muted: #9ca3af;
+    --border: #2e3348;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; line-height:1.6; }
+  .hero {
+    text-align:center; padding:80px 20px 60px;
+    background:linear-gradient(135deg,#1a1d27 0%,#2d1b69 50%,#1a1d27 100%);
+    position:relative; overflow:hidden;
+  }
+  .hero::after {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at 50% 120%, rgba(108,99,255,.15) 0%, transparent 60%);
+  }
+  .hero h1 { font-size:clamp(2rem,5vw,3.5rem); font-weight:800; position:relative; z-index:1; }
+  .hero h1 span { background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .hero p { color:var(--muted); font-size:1.1rem; margin-top:12px; position:relative; z-index:1; }
+
+  .container { max-width:1200px; margin:0 auto; padding:0 20px; }
+
+  /* Nav */
+  .toc { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:30px 20px; position:sticky; top:0; z-index:100; background:rgba(15,17,23,.92); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
+  .toc a { padding:6px 14px; border-radius:20px; font-size:.8rem; color:var(--muted); text-decoration:none; border:1px solid var(--border); transition:.2s; white-space:nowrap; }
+  .toc a:hover { color:var(--text); border-color:var(--accent); background:rgba(108,99,255,.1); }
+
+  /* Section */
+  section { padding:60px 0; }
+  .section-title { font-size:1.8rem; font-weight:700; margin-bottom:30px; display:flex; align-items:center; gap:12px; }
+  .section-title .num { background:var(--accent); color:#fff; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.95rem; font-weight:700; flex-shrink:0; }
+
+  /* Cards */
+  .grid { display:grid; gap:20px; }
+  .grid-2 { grid-template-columns:repeat(auto-fit,minmax(340px,1fr)); }
+  .grid-3 { grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+  .grid-4 { grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; transition:.25s; }
+  .card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 30px rgba(108,99,255,.08); }
+  .card h3 { font-size:1.1rem; margin-bottom:8px; }
+  .card p, .card li { color:var(--muted); font-size:.9rem; }
+  .card ul { padding-left:18px; }
+  .card ul li { margin-bottom:4px; }
+  .badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:.72rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+  .badge-purple { background:rgba(108,99,255,.15); color:#a5a0ff; }
+  .badge-green { background:rgba(0,201,167,.15); color:#00c9a7; }
+  .badge-red { background:rgba(247,121,125,.15); color:#f7797d; }
+  .badge-yellow { background:rgba(255,195,113,.15); color:#ffc371; }
+  .badge-blue { background:rgba(56,189,248,.15); color:#38bdf8; }
+
+  /* Chart containers */
+  .chart-box { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px; }
+  .chart-box h3 { font-size:1.1rem; margin-bottom:16px; text-align:center; }
+  .chart-wrap { position:relative; max-width:500px; margin:0 auto; }
+
+  /* Mermaid */
+  .mermaid-box { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px; overflow-x:auto; }
+  .mermaid-box h3 { font-size:1.1rem; margin-bottom:16px; }
+  .mermaid { display:flex; justify-content:center; }
+
+  /* Timeline */
+  .timeline { position:relative; padding:20px 0; }
+  .timeline::before { content:''; position:absolute; left:24px; top:0; bottom:0; width:3px; background:var(--accent); border-radius:2px; }
+  .tl-item { position:relative; padding-left:60px; margin-bottom:28px; }
+  .tl-item::before { content:''; position:absolute; left:17px; top:6px; width:17px; height:17px; border-radius:50%; background:var(--accent); border:3px solid var(--bg); }
+  .tl-item h4 { font-size:1rem; color:var(--accent2); }
+  .tl-item p { color:var(--muted); font-size:.88rem; }
+
+  /* Comparison table */
+  .cmp-table { width:100%; border-collapse:collapse; font-size:.88rem; }
+  .cmp-table th, .cmp-table td { padding:10px 14px; text-align:left; border-bottom:1px solid var(--border); }
+  .cmp-table th { color:var(--accent); font-weight:600; background:rgba(108,99,255,.06); }
+  .cmp-table tr:hover td { background:rgba(108,99,255,.04); }
+
+  /* Quadrant grid */
+  .quadrant { display:grid; grid-template-columns:1fr 1fr; gap:2px; border-radius:16px; overflow:hidden; }
+  .quadrant .q { padding:22px; text-align:center; }
+  .quadrant .q h4 { font-size:.95rem; margin-bottom:6px; }
+  .quadrant .q p { font-size:.82rem; color:var(--muted); }
+  .q1 { background:rgba(0,201,167,.12); }
+  .q2 { background:rgba(108,99,255,.12); }
+  .q3 { background:rgba(255,195,113,.12); }
+  .q4 { background:rgba(247,121,125,.12); }
+
+  /* Pill list */
+  .pill-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .pill { padding:5px 14px; border-radius:20px; font-size:.8rem; border:1px solid var(--border); color:var(--muted); }
+
+  /* Divider */
+  .divider { height:1px; background:var(--border); margin:40px 0; }
+
+  /* Footer */
+  footer { text-align:center; padding:40px 20px; color:var(--muted); font-size:.82rem; border-top:1px solid var(--border); }
+
+  /* Responsive */
+  @media(max-width:600px) {
+    .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+    .quadrant { grid-template-columns:1fr; }
+  }
+
+  /* Process Steps */
+  .process-steps { display:flex; flex-wrap:wrap; gap:0; justify-content:center; align-items:center; margin:20px 0; }
+  .process-step { background:var(--card-alt); padding:14px 20px; border-radius:12px; text-align:center; min-width:110px; border:1px solid var(--border); }
+  .process-step .num { font-size:1.4rem; font-weight:800; }
+  .process-step .label { font-size:.78rem; color:var(--muted); margin-top:2px; }
+  .process-arrow { font-size:1.4rem; color:var(--accent); padding:0 4px; }
+
+  /* Stat cards */
+  .stat-row { display:flex; flex-wrap:wrap; gap:16px; justify-content:center; margin:20px 0; }
+  .stat { background:var(--card-alt); border:1px solid var(--border); border-radius:14px; padding:18px 24px; text-align:center; min-width:140px; }
+  .stat .val { font-size:1.6rem; font-weight:800; }
+  .stat .lbl { font-size:.78rem; color:var(--muted); margin-top:2px; }
+
+  /* Colored accent bar */
+  .accent-bar { width:40px; height:4px; border-radius:2px; margin-bottom:12px; }
+  .ab-purple { background:var(--accent); }
+  .ab-green { background:var(--accent2); }
+  .ab-red { background:var(--accent3); }
+  .ab-yellow { background:var(--accent4); }
+
+  /* Icon circles */
+  .icon-circle { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:10px; }
+  .ic-purple { background:rgba(108,99,255,.15); }
+  .ic-green { background:rgba(0,201,167,.15); }
+  .ic-red { background:rgba(247,121,125,.15); }
+  .ic-yellow { background:rgba(255,195,113,.15); }
+  .ic-blue { background:rgba(56,189,248,.15); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Become a <span>Product Manager</span></h1>
+  <p>A visual guide to the complete Product Management discipline</p>
+</div>
+
+<!-- NAV -->
+<nav class="toc">
+  <a href="#pm-role">PM Role</a>
+  <a href="#pm-types">PM Types</a>
+  <a href="#lifecycle">Product Lifecycle</a>
+  <a href="#dev-process">Dev Process</a>
+  <a href="#lean-agile">Lean & Agile</a>
+  <a href="#ideas">Ideas & Validation</a>
+  <a href="#market">Market Analysis</a>
+  <a href="#customer">Customer Dev</a>
+  <a href="#experiments">Experiments</a>
+  <a href="#solution">Solutions</a>
+  <a href="#metrics">Metrics</a>
+  <a href="#project-mgmt">Project Mgmt</a>
+  <a href="#prioritization">Prioritization</a>
+  <a href="#stakeholders">Stakeholders</a>
+  <a href="#tech">Technology</a>
+  <a href="#career">Career</a>
+</nav>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- 1. WHAT IS A PM -->
+<!-- ============================================================ -->
+<section id="pm-role">
+  <div class="section-title"><div class="num">1</div> What is a Product Manager?</div>
+
+  <div class="mermaid-box">
+    <h3>The PM sits at the intersection of Business, Technology & UX</h3>
+    <pre class="mermaid">
+    graph TD
+      PM["🧑‍💼 Product Manager"]
+      B["💼 Business"]
+      T["⚙️ Technology"]
+      U["🎨 User Experience"]
+      PM --- B
+      PM --- T
+      PM --- U
+      B --- T
+      T --- U
+      U --- B
+      style PM fill:#6c63ff,stroke:none,color:#fff,font-weight:bold
+      style B fill:#222636,stroke:#ffc371,color:#ffc371
+      style T fill:#222636,stroke:#38bdf8,color:#38bdf8
+      style U fill:#222636,stroke:#00c9a7,color:#00c9a7
+    </pre>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card">
+      <div class="icon-circle ic-purple">🔗</div>
+      <h3>Communications Hub</h3>
+      <p>Sits between teams — engineering, design, sales, marketing, legal, executives — acting as the central point of communication.</p>
+    </div>
+    <div class="card">
+      <div class="icon-circle ic-green">📊</div>
+      <h3>Prioritizer</h3>
+      <p>Decides what gets built next based on user research, data analysis, and strategic alignment.</p>
+    </div>
+    <div class="card">
+      <div class="icon-circle ic-red">🏆</div>
+      <h3>Responsible for Success</h3>
+      <p>Owns the outcome. If the product succeeds or fails, the PM is accountable.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="mermaid-box">
+    <h3>What a "Product" means in PM context</h3>
+    <pre class="mermaid">
+    graph LR
+      APP["📱 Full Application<br/>(e.g. Facebook)"]
+      F1["📷 Photos"]
+      F2["📰 Newsfeed"]
+      F3["👤 Profile"]
+      F4["💬 Messaging"]
+      F5["📢 Ads"]
+      APP --> F1
+      APP --> F2
+      APP --> F3
+      APP --> F4
+      APP --> F5
+      F1 -.- PM1["PM + Team"]
+      F2 -.- PM2["PM + Team"]
+      F3 -.- PM3["PM + Team"]
+      F4 -.- PM4["PM + Team"]
+      F5 -.- PM5["PM + Team"]
+      style APP fill:#6c63ff,stroke:none,color:#fff
+      style PM1 fill:#222636,stroke:#00c9a7,color:#00c9a7
+      style PM2 fill:#222636,stroke:#00c9a7,color:#00c9a7
+      style PM3 fill:#222636,stroke:#00c9a7,color:#00c9a7
+      style PM4 fill:#222636,stroke:#00c9a7,color:#00c9a7
+      style PM5 fill:#222636,stroke:#00c9a7,color:#00c9a7
+    </pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 2. PM TYPES -->
+<!-- ============================================================ -->
+<section id="pm-types">
+  <div class="section-title"><div class="num">2</div> Three Types of Product Managers</div>
+
+  <div class="grid grid-3">
+    <div class="card" style="border-top:3px solid var(--accent);">
+      <span class="badge badge-purple">Internal PM</span>
+      <h3 style="margin-top:10px;">🏢 Internal Tools</h3>
+      <ul>
+        <li>Builds tools for <strong>internal employees</strong></li>
+        <li>Stakeholders are inside the company</li>
+        <li>Lower risk — smaller user base</li>
+        <li>Good <strong>entry-level</strong> PM role</li>
+        <li>Heavy on project management</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--accent2);">
+      <span class="badge badge-green">B2B PM</span>
+      <h3 style="margin-top:10px;">🤝 Business-to-Business</h3>
+      <ul>
+        <li>Builds for <strong>other companies</strong></li>
+        <li>Heavily influenced by <strong>sales teams</strong></li>
+        <li>Smaller user base, higher deal value</li>
+        <li>Tighter <strong>deadlines</strong> tied to deals</li>
+        <li>Good introduction to PM</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--accent3);">
+      <span class="badge badge-red">B2C PM</span>
+      <h3 style="margin-top:10px;">👥 Business-to-Consumer</h3>
+      <ul>
+        <li>Builds for <strong>millions of users</strong></li>
+        <li>Multiple platforms (Web, iOS, Android)</li>
+        <li>High uncertainty, high pressure</li>
+        <li>Extensive <strong>user testing & A/B testing</strong></li>
+        <li>Most <strong>challenging</strong> but most rewarding</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="chart-box" style="margin-top:20px;">
+    <h3>PM Types Comparison</h3>
+    <div class="chart-wrap"><canvas id="pmTypesChart"></canvas></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 3. PRODUCT LIFECYCLE -->
+<!-- ============================================================ -->
+<section id="lifecycle">
+  <div class="section-title"><div class="num">3</div> Product Lifecycle — The 4 Phases</div>
+
+  <div class="chart-box">
+    <h3>Revenue Over Time — Product Lifecycle Curve</h3>
+    <div class="chart-wrap" style="max-width:700px;"><canvas id="lifecycleChart"></canvas></div>
+  </div>
+
+  <div class="grid grid-4">
+    <div class="card">
+      <div class="accent-bar ab-purple"></div>
+      <h3>1. Introduction</h3>
+      <p>Product enters market. Little competition. Business loses money. Only early adopters buy.</p>
+    </div>
+    <div class="card">
+      <div class="accent-bar ab-green"></div>
+      <h3>2. Growth</h3>
+      <p>Market acceptance. Sales rise. Few competitors appear. Company invests in improvements.</p>
+    </div>
+    <div class="card">
+      <div class="accent-bar ab-yellow"></div>
+      <h3>3. Maturity</h3>
+      <p>Sales peak. Competitors flood the market. Difficult to maintain competitive edge.</p>
+    </div>
+    <div class="card">
+      <div class="accent-bar ab-red"></div>
+      <h3>4. Decline</h3>
+      <p>Sales diminish. Market saturation. Product may be phased out or sunset.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 4. PRODUCT DEVELOPMENT PROCESS -->
+<!-- ============================================================ -->
+<section id="dev-process">
+  <div class="section-title"><div class="num">4</div> Product Development Process — 7 Phases</div>
+
+  <div class="mermaid-box">
+    <h3>The 7-Phase Development Journey</h3>
+    <pre class="mermaid">
+    flowchart LR
+      C["💡 Conceive"]:::phase --> P["📋 Plan"]:::phase
+      P --> D["🔨 Develop"]:::phase
+      D --> I["🔄 Iterate"]:::phase
+      I --> L["🚀 Launch"]:::phase
+      L --> S["⚖️ Steady State"]:::phase
+      S --> M{"🔧 Maintain<br/>or 💀 Kill?"}:::decision
+      classDef phase fill:#222636,stroke:#6c63ff,color:#e4e4e7,stroke-width:2px
+      classDef decision fill:#222636,stroke:#f7797d,color:#f7797d,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Phases 1–4: Building</h3>
+      <ul>
+        <li><strong>Conceive:</strong> Collect user problems, brainstorm solutions, identify focus areas</li>
+        <li><strong>Plan:</strong> Market research, business case, customer interviews, roadmap</li>
+        <li><strong>Develop:</strong> Timelines, user stories, specs, engineering estimations</li>
+        <li><strong>Iterate:</strong> MVP → early feedback → Alpha → Beta testing</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Phases 5–7: Scaling & Deciding</h3>
+      <ul>
+        <li><strong>Launch:</strong> Coordinate with marketing, legal, PR, sales for public release</li>
+        <li><strong>Steady State:</strong> Collect metrics, optimize, continue marketing</li>
+        <li><strong>Maintain or Kill:</strong> Evaluate ROI — if underperforming, <em>sunset</em> the product gracefully</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 5. LEAN & AGILE -->
+<!-- ============================================================ -->
+<section id="lean-agile">
+  <div class="section-title"><div class="num">5</div> Lean, Agile, Scrum & Kanban</div>
+
+  <div class="mermaid-box">
+    <h3>How these methodologies relate</h3>
+    <pre class="mermaid">
+    graph TD
+      LEAN["🏗️ LEAN<br/>Cut waste until you're sure"]:::lean
+      AGILE["⚡ AGILE<br/>Lean applied to software"]:::agile
+      SCRUM["🔁 SCRUM<br/>Fixed-sprint framework"]:::scrum
+      KANBAN["📋 KANBAN<br/>Continuous-flow framework"]:::kanban
+      LEAN --> AGILE
+      AGILE --> SCRUM
+      AGILE --> KANBAN
+      classDef lean fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:2px
+      classDef agile fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:2px
+      classDef scrum fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+      classDef kanban fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="mermaid-box">
+      <h3>Scrum Sprint Cycle</h3>
+      <pre class="mermaid">
+      flowchart TD
+        PB["📦 Product Backlog"]:::box --> SPM["📝 Sprint Planning Meeting"]:::box
+        SPM --> SB["📋 Sprint Backlog"]:::box
+        SB --> DEV["⚙️ 2-Week Sprint<br/>Daily Standups"]:::sprint
+        DEV --> REVIEW["🎤 Sprint Review / Demo"]:::box
+        REVIEW --> RETRO["🔍 Retrospective<br/>What went well? What didn't?"]:::box
+        RETRO --> PB
+        classDef box fill:#222636,stroke:#00c9a7,color:#e4e4e7,stroke-width:1px
+        classDef sprint fill:#1a3a2f,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+      </pre>
+    </div>
+    <div class="card">
+      <h3>Scrum vs. Kanban</h3>
+      <table class="cmp-table">
+        <tr><th>Aspect</th><th>Scrum</th><th>Kanban</th></tr>
+        <tr><td>Cadence</td><td>Fixed sprints (2 wks)</td><td>Continuous flow</td></tr>
+        <tr><td>Roles</td><td>SM, PO, Dev Team</td><td>Flexible</td></tr>
+        <tr><td>Planning</td><td>Sprint planning</td><td>On-demand</td></tr>
+        <tr><td>WIP Limits</td><td>Per sprint</td><td>Per column</td></tr>
+        <tr><td>Changes</td><td>Between sprints</td><td>Any time</td></tr>
+        <tr><td>Metric</td><td>Velocity</td><td>Cycle time</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="mermaid-box" style="margin-top:20px;">
+    <h3>Waterfall vs. Agile</h3>
+    <pre class="mermaid">
+    flowchart LR
+      subgraph WATERFALL["Waterfall — Linear & Sequential"]
+        direction LR
+        W1["Requirements"]:::wf --> W2["Design"]:::wf --> W3["Implement"]:::wf --> W4["Verify"]:::wf --> W5["Maintain"]:::wf
+      end
+      subgraph AGILEM["Agile — Iterative & Incremental"]
+        direction LR
+        A1["Plan"]:::ag --> A2["Design"]:::ag --> A3["Build"]:::ag --> A4["Test"]:::ag --> A5["Release"]:::ag --> A6["Feedback"]:::ag
+        A6 --> A1
+      end
+      classDef wf fill:#2d2020,stroke:#f7797d,color:#f7797d,stroke-width:1px
+      classDef ag fill:#1a2d2a,stroke:#00c9a7,color:#00c9a7,stroke-width:1px
+    </pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 6. IDEAS & VALIDATION -->
+<!-- ============================================================ -->
+<section id="ideas">
+  <div class="section-title"><div class="num">6</div> Ideas, User Needs & Validation</div>
+
+  <div class="mermaid-box">
+    <h3>Where do product ideas come from?</h3>
+    <pre class="mermaid">
+    graph TD
+      IDEAS["💡 Product Ideas"]:::center
+      EMP["👥 Employees"]:::src --> IDEAS
+      DATA["📊 Metrics / Data"]:::src --> IDEAS
+      USERS["🗣️ Users / Customers"]:::src --> IDEAS
+      COMP["🏁 Competitors"]:::src --> IDEAS
+      SUP["🎧 Support Team"]:::src --> IDEAS
+      RES["📚 Market Research"]:::src --> IDEAS
+      IDEAS --> FILTER["🔍 PM Filters & Prioritizes"]:::action
+      classDef center fill:#6c63ff,stroke:none,color:#fff
+      classDef src fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:1px
+      classDef action fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>⚠️ Problem Space vs. Solution Space</h3>
+      <table class="cmp-table">
+        <tr><th>Problem Space</th><th>Solution Space</th></tr>
+        <tr><td>What the user needs</td><td>How we solve it</td></tr>
+        <tr><td>"I want to get there faster"</td><td>Car, train, better road</td></tr>
+        <tr><td>Focus here first!</td><td>Many solutions per problem</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:.85rem;color:var(--accent3);">Always start with the <strong>problem</strong>, not the solution. Users suggest solutions, but the underlying need is what matters.</p>
+    </div>
+    <div class="card">
+      <h3>🧪 Validation Methods</h3>
+      <ul>
+        <li>Customer Interviews</li>
+        <li>Surveys</li>
+        <li>Landing Page Tests</li>
+        <li>Fake Door Tests</li>
+        <li>Concierge MVP</li>
+        <li>Wizard of Oz MVP</li>
+        <li>Prototyping & User Testing</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 7. MARKET ANALYSIS -->
+<!-- ============================================================ -->
+<section id="market">
+  <div class="section-title"><div class="num">7</div> Competitive & Market Analysis</div>
+
+  <div class="grid grid-2">
+    <div class="mermaid-box">
+      <h3>SWOT Analysis Framework</h3>
+      <div class="quadrant">
+        <div class="q q1">
+          <h4>💪 Strengths</h4>
+          <p>Internal advantages: brand, tech, team, unique features</p>
+        </div>
+        <div class="q q4">
+          <h4>⚠️ Weaknesses</h4>
+          <p>Internal disadvantages: limited resources, tech debt, gaps</p>
+        </div>
+        <div class="q q2">
+          <h4>🌟 Opportunities</h4>
+          <p>External factors: market trends, unserved users, new tech</p>
+        </div>
+        <div class="q q3">
+          <h4>🔥 Threats</h4>
+          <p>External risks: competitors, regulations, market changes</p>
+        </div>
+      </div>
+    </div>
+    <div class="mermaid-box">
+      <h3>Market Sizing: TAM → SAM → SOM</h3>
+      <pre class="mermaid">
+      graph TD
+        TAM["🌍 TAM<br/>Total Addressable Market<br/>Maximum revenue opportunity"]:::tam
+        SAM["🎯 SAM<br/>Serviceable Addressable Market<br/>Segment you CAN serve"]:::sam
+        SOM["📌 SOM<br/>Serviceable Obtainable Market<br/>Realistic capture"]:::som
+        TAM --> SAM --> SOM
+        classDef tam fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:2px
+        classDef sam fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:2px
+        classDef som fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+      </pre>
+    </div>
+  </div>
+
+  <div class="mermaid-box" style="margin-top:20px;">
+    <h3>Competitive Analysis Process</h3>
+    <pre class="mermaid">
+    flowchart LR
+      ID["1. Identify<br/>Competitors"]:::step --> GATHER["2. Gather<br/>Information"]:::step
+      GATHER --> ANALYZE["3. Analyze<br/>Strengths/Weaknesses"]:::step
+      ANALYZE --> COMPARE["4. Compare<br/>Features"]:::step
+      COMPARE --> OPP["5. Identify<br/>Opportunities"]:::step
+      classDef step fill:#222636,stroke:#6c63ff,color:#e4e4e7,stroke-width:1px
+    </pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 8. CUSTOMER DEVELOPMENT -->
+<!-- ============================================================ -->
+<section id="customer">
+  <div class="section-title"><div class="num">8</div> Customer Development</div>
+
+  <div class="mermaid-box">
+    <h3>Steve Blank's Customer Development — 4 Phases</h3>
+    <pre class="mermaid">
+    flowchart LR
+      CD1["🔍 Customer<br/>Discovery<br/><br/>Do they have<br/>the problem?"]:::phase
+      CD2["✅ Customer<br/>Validation<br/><br/>Will they pay<br/>for a solution?"]:::phase
+      CD3["📈 Customer<br/>Creation<br/><br/>Drive demand<br/>to solution"]:::phase
+      CD4["🏢 Company<br/>Building<br/><br/>Execute the<br/>validated model"]:::phase
+      CD1 --> CD2 --> CD3 --> CD4
+      CD2 -.->|"Pivot"| CD1
+      classDef phase fill:#222636,stroke:#00c9a7,color:#e4e4e7,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>🎙️ Customer Interview Tips</h3>
+      <ul>
+        <li><strong>Don't pitch</strong> — listen and learn</li>
+        <li>Ask <strong>open-ended</strong> questions</li>
+        <li>Focus on <strong>behavior</strong>, not opinions</li>
+        <li>Ask about <strong>the past</strong>, not the future</li>
+        <li>Dig deeper with <strong>"why?"</strong></li>
+        <li>Don't <strong>lead</strong> the witness</li>
+        <li>Look for <strong>patterns</strong> across interviews</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>👤 User Persona Components</h3>
+      <div class="mermaid-box" style="border:none;padding:0;margin:0;background:transparent;">
+        <pre class="mermaid">
+        graph TD
+          P["👤 Persona"]:::center
+          N["📛 Name & Photo"]:::item --> P
+          D["📋 Demographics"]:::item --> P
+          G["🎯 Goals"]:::item --> P
+          F["😣 Pain Points"]:::item --> P
+          B["🔄 Behaviors"]:::item --> P
+          M["💡 Motivations"]:::item --> P
+          classDef center fill:#6c63ff,stroke:none,color:#fff
+          classDef item fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:1px
+        </pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 9. EXPERIMENTS -->
+<!-- ============================================================ -->
+<section id="experiments">
+  <div class="section-title"><div class="num">9</div> Designing & Running Experiments</div>
+
+  <div class="mermaid-box">
+    <h3>Hypothesis-Driven Development Cycle</h3>
+    <pre class="mermaid">
+    flowchart LR
+      H["📝 Formulate<br/>Hypothesis"]:::step --> E["🧪 Design<br/>Experiment"]:::step
+      E --> C["📐 Define Success<br/>Criteria"]:::step
+      C --> R["▶️ Run<br/>Experiment"]:::step
+      R --> A["📊 Analyze<br/>Results"]:::step
+      A --> L["💡 Learn &<br/>Iterate"]:::step
+      L --> H
+      classDef step fill:#222636,stroke:#ffc371,color:#e4e4e7,stroke-width:2px
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>🏗️ Types of MVPs</h3>
+      <table class="cmp-table">
+        <tr><th>Type</th><th>Description</th></tr>
+        <tr><td>Landing Page</td><td>Page describing product to gauge interest</td></tr>
+        <tr><td>Concierge</td><td>Manually deliver service to test demand</td></tr>
+        <tr><td>Wizard of Oz</td><td>Looks automated, actually manual behind scenes</td></tr>
+        <tr><td>Single Feature</td><td>Build only the core feature</td></tr>
+        <tr><td>Piecemeal</td><td>Stitch together existing tools</td></tr>
+      </table>
+      <p style="margin-top:10px;font-size:.82rem;color:var(--muted);"><strong>Famous examples:</strong> Dropbox (demo video), Zappos (photos of shoes), Airbnb (renting air mattresses)</p>
+    </div>
+    <div class="card">
+      <h3>🧪 Types of Experiments</h3>
+      <ul>
+        <li><strong>A/B Testing</strong> — Compare two versions</li>
+        <li><strong>Multivariate</strong> — Test multiple variables</li>
+        <li><strong>Usability Testing</strong> — Observe real users</li>
+        <li><strong>Fake Door</strong> — Button for non-existent feature</li>
+        <li><strong>Smoke Test</strong> — Marketing page for non-existent product</li>
+        <li><strong>Concierge</strong> — Manual delivery</li>
+        <li><strong>Wizard of Oz</strong> — Looks automated, isn't</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 10. SOLUTION -->
+<!-- ============================================================ -->
+<section id="solution">
+  <div class="section-title"><div class="num">10</div> Conceptualizing the Solution</div>
+
+  <div class="mermaid-box">
+    <h3>From idea to implementation</h3>
+    <pre class="mermaid">
+    flowchart LR
+      PRD["📄 PRD<br/>Requirements Doc"]:::step --> US["📝 User Stories<br/>'As a... I want... so that...'"]:::step
+      US --> AC["✅ Acceptance<br/>Criteria"]:::step
+      AC --> WF["🖼️ Wireframes<br/>Lo-fi → Hi-fi"]:::step
+      WF --> PT["🖱️ Prototype<br/>Interactive"]:::step
+      PT --> DEV["⚙️ Development"]:::step
+      classDef step fill:#222636,stroke:#6c63ff,color:#e4e4e7,stroke-width:1px
+    </pre>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card">
+      <h3>📄 PRD Components</h3>
+      <ul>
+        <li>Objective / Purpose</li>
+        <li>Background & Context</li>
+        <li>User Stories</li>
+        <li>Requirements (functional + non-functional)</li>
+        <li>Wireframes / Mockups</li>
+        <li>Success Metrics</li>
+        <li>Timeline / Milestones</li>
+        <li>Out of Scope</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>📝 User Story Format</h3>
+      <div style="background:var(--card-alt);padding:14px;border-radius:10px;margin:8px 0;font-size:.9rem;">
+        <em>"As a <strong>[user type]</strong>,<br/>I want <strong>[action]</strong>,<br/>so that <strong>[benefit]</strong>."</em>
+      </div>
+      <p style="margin-top:8px;font-size:.82rem;"><strong>INVEST:</strong> Independent, Negotiable, Valuable, Estimable, Small, Testable</p>
+    </div>
+    <div class="card">
+      <h3>🖼️ Wireframe Levels</h3>
+      <div class="chart-wrap"><canvas id="wireframeChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="mermaid-box" style="margin-top:20px;">
+    <h3>Work Hierarchy</h3>
+    <pre class="mermaid">
+    graph TD
+      TH["🎯 Theme<br/>Business Objective"]:::t --> EP["📦 Epic<br/>Large body of work"]:::e
+      EP --> ST["📝 User Story<br/>Single feature"]:::s
+      ST --> TA["🔧 Task / Subtask<br/>Implementation work"]:::ta
+      classDef t fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:2px
+      classDef e fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:2px
+      classDef s fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+      classDef ta fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:1px
+    </pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 11. METRICS -->
+<!-- ============================================================ -->
+<section id="metrics">
+  <div class="section-title"><div class="num">11</div> Metrics — Defining & Measuring Success</div>
+
+  <div class="grid grid-2">
+    <div class="mermaid-box">
+      <h3>HEART Framework (Google)</h3>
+      <pre class="mermaid">
+      graph TD
+        H["❤️ Happiness<br/>NPS, CSAT, ratings"]:::h
+        E["⚡ Engagement<br/>Frequency, session length"]:::e
+        A["📥 Adoption<br/>New signups, feature adoption"]:::a
+        R["🔁 Retention<br/>Retention rate, churn"]:::r
+        T["✅ Task Success<br/>Completion rate, error rate"]:::t
+        HEART["HEART"]:::center
+        HEART --> H
+        HEART --> E
+        HEART --> A
+        HEART --> R
+        HEART --> T
+        classDef center fill:#6c63ff,stroke:none,color:#fff
+        classDef h fill:#222636,stroke:#f7797d,color:#f7797d,stroke-width:2px
+        classDef e fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:2px
+        classDef a fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+        classDef r fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:2px
+        classDef t fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:2px
+      </pre>
+    </div>
+    <div class="mermaid-box">
+      <h3>AARRR Pirate Metrics Funnel</h3>
+      <pre class="mermaid">
+      graph TD
+        ACQ["🌐 Acquisition<br/>Where do users come from?"]:::a
+        ACT["⚡ Activation<br/>Good first experience?"]:::b
+        RET["🔁 Retention<br/>Do they come back?"]:::c
+        REV["💰 Revenue<br/>Are they paying?"]:::d
+        REF["📣 Referral<br/>Do they tell others?"]:::e
+        ACQ --> ACT --> RET --> REV --> REF
+        classDef a fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:2px
+        classDef b fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+        classDef c fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:2px
+        classDef d fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:2px
+        classDef e fill:#222636,stroke:#f7797d,color:#f7797d,stroke-width:2px
+      </pre>
+    </div>
+  </div>
+
+  <div class="chart-box" style="margin-top:20px;">
+    <h3>Key Product Metrics at a Glance</h3>
+    <div class="grid grid-3" style="gap:12px;">
+      <div class="stat"><div class="val" style="color:var(--accent);">DAU/MAU</div><div class="lbl">Stickiness Ratio<br/>Higher = better</div></div>
+      <div class="stat"><div class="val" style="color:var(--accent2);">LTV:CAC</div><div class="lbl">Should be ≥ 3:1<br/>Profitability indicator</div></div>
+      <div class="stat"><div class="val" style="color:var(--accent3);">Churn</div><div class="lbl">= 1 − Retention<br/>% users lost</div></div>
+      <div class="stat"><div class="val" style="color:var(--accent4);">NPS</div><div class="lbl">% Promoters − % Detractors<br/>-100 to +100</div></div>
+      <div class="stat"><div class="val" style="color:#38bdf8;">MRR</div><div class="lbl">Monthly Recurring Revenue<br/>ARR = MRR × 12</div></div>
+      <div class="stat"><div class="val" style="color:#c084fc;">CVR</div><div class="lbl">Conversion Rate<br/>% completing desired action</div></div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:20px;">
+    <div class="card">
+      <h3>🚫 Vanity Metrics</h3>
+      <p>Look impressive but <strong>don't inform decisions</strong>.</p>
+      <div class="pill-list">
+        <span class="pill">Total registered users</span>
+        <span class="pill">Total page views</span>
+        <span class="pill">Total downloads</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>✅ Actionable Metrics</h3>
+      <p>Directly <strong>tied to actions</strong> and decisions.</p>
+      <div class="pill-list" style="border-color:var(--accent2);">
+        <span class="pill" style="border-color:var(--accent2);color:var(--accent2);">Conversion rate</span>
+        <span class="pill" style="border-color:var(--accent2);color:var(--accent2);">Retention rate</span>
+        <span class="pill" style="border-color:var(--accent2);color:var(--accent2);">Revenue per user</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mermaid-box" style="margin-top:20px;">
+    <h3>A/B Testing Flow</h3>
+    <pre class="mermaid">
+    flowchart LR
+      USERS["👥 All Users"]:::u --> SPLIT{"Random<br/>Split"}:::s
+      SPLIT -->|50%| A["🅰️ Control<br/>Original Version"]:::ctrl
+      SPLIT -->|50%| B["🅱️ Variant<br/>Changed Version"]:::var
+      A --> MA["📊 Measure<br/>Metric A"]:::m
+      B --> MB["📊 Measure<br/>Metric B"]:::m
+      MA --> CMP["⚖️ Compare<br/>Statistical Significance?"]:::c
+      MB --> CMP
+      CMP -->|"Yes"| WIN["✅ Implement<br/>Winner"]:::w
+      CMP -->|"No"| MORE["🔄 Need More<br/>Data"]:::r
+      classDef u fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:1px
+      classDef s fill:#6c63ff,stroke:none,color:#fff
+      classDef ctrl fill:#1a2d2a,stroke:#00c9a7,color:#00c9a7,stroke-width:1px
+      classDef var fill:#2d201a,stroke:#ffc371,color:#ffc371,stroke-width:1px
+      classDef m fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:1px
+      classDef c fill:#222636,stroke:#6c63ff,color:#e4e4e7,stroke-width:2px
+      classDef w fill:#1a2d2a,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+      classDef r fill:#2d2020,stroke:#f7797d,color:#f7797d,stroke-width:1px
+    </pre>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 12. PROJECT MGMT -->
+<!-- ============================================================ -->
+<section id="project-mgmt">
+  <div class="section-title"><div class="num">12</div> Project Management for PMs</div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Product Manager vs. Project Manager</h3>
+      <table class="cmp-table">
+        <tr><th></th><th>Product Manager</th><th>Project Manager</th></tr>
+        <tr><td>Goal</td><td>Achieve a <strong>metric/outcome</strong></td><td>Complete a <strong>project</strong></td></tr>
+        <tr><td>Method</td><td>Open — they decide how</td><td>Defined — follow the plan</td></tr>
+        <tr><td>Constraint</td><td>Success metrics</td><td>Timeline + Budget</td></tr>
+        <tr><td>Approach</td><td>Experimentation</td><td>Execution</td></tr>
+        <tr><td>Example</td><td>Increase checkout CVR 10%</td><td>Build skyscraper on time</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Story Points & Estimation</h3>
+      <div class="chart-wrap"><canvas id="fibChart"></canvas></div>
+      <p style="margin-top:10px;font-size:.82rem;color:var(--muted);text-align:center;">Fibonacci scale: larger numbers = more uncertainty. <strong>Planning Poker</strong> used for team consensus.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:20px;">
+    <div class="card">
+      <h3>📋 Roadmap Types</h3>
+      <div class="grid grid-3" style="gap:8px;margin-top:10px;">
+        <div style="background:var(--card-alt);padding:12px;border-radius:10px;text-align:center;">
+          <div style="font-size:1.2rem;">📅</div>
+          <div style="font-size:.82rem;color:var(--accent);font-weight:600;">Timeline</div>
+          <div style="font-size:.75rem;color:var(--muted);">Features on a calendar</div>
+        </div>
+        <div style="background:var(--card-alt);padding:12px;border-radius:10px;text-align:center;">
+          <div style="font-size:1.2rem;">🎯</div>
+          <div style="font-size:.82rem;color:var(--accent2);font-weight:600;">Theme-based</div>
+          <div style="font-size:.75rem;color:var(--muted);">Organized by goals</div>
+        </div>
+        <div style="background:var(--card-alt);padding:12px;border-radius:10px;text-align:center;">
+          <div style="font-size:1.2rem;">➡️</div>
+          <div style="font-size:.82rem;color:var(--accent4);font-weight:600;">Now/Next/Later</div>
+          <div style="font-size:.75rem;color:var(--muted);">Simple 3-column</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>⏰ A Day in the Life of a PM</h3>
+      <div class="timeline">
+        <div class="tl-item"><h4>9:00 AM</h4><p>Check emails & tech news</p></div>
+        <div class="tl-item"><h4>10:00 AM</h4><p>Review metrics dashboard & customer feedback</p></div>
+        <div class="tl-item"><h4>11:00 AM</h4><p>Team standup meeting (15 min)</p></div>
+        <div class="tl-item"><h4>11:15 AM</h4><p>Work with designer on user problems</p></div>
+        <div class="tl-item"><h4>12:00 PM</h4><p>Write specs, tickets & user stories</p></div>
+        <div class="tl-item"><h4>1:00 PM</h4><p>Test alpha release on devices</p></div>
+        <div class="tl-item"><h4>2:00 PM+</h4><p>Cross-team meetings, data review, demos, stakeholders</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 13. PRIORITIZATION -->
+<!-- ============================================================ -->
+<section id="prioritization">
+  <div class="section-title"><div class="num">13</div> Prioritization Frameworks</div>
+
+  <div class="grid grid-2">
+    <div class="mermaid-box">
+      <h3>RICE Scoring</h3>
+      <div style="text-align:center;padding:10px 0;">
+        <div style="font-size:1.4rem;font-weight:700;color:var(--accent);">
+          Score = <span style="color:var(--accent2);">R</span>each × <span style="color:var(--accent4);">I</span>mpact × <span style="color:#38bdf8;">C</span>onfidence ÷ <span style="color:var(--accent3);">E</span>ffort
+        </div>
+      </div>
+      <table class="cmp-table">
+        <tr><th>Factor</th><th>Description</th><th>Scale</th></tr>
+        <tr><td style="color:var(--accent2);">Reach</td><td>Users impacted per period</td><td>Number</td></tr>
+        <tr><td style="color:var(--accent4);">Impact</td><td>Effect per user</td><td>0.25–3</td></tr>
+        <tr><td style="color:#38bdf8;">Confidence</td><td>How sure are you?</td><td>50–100%</td></tr>
+        <tr><td style="color:var(--accent3);">Effort</td><td>Person-months</td><td>Number</td></tr>
+      </table>
+    </div>
+    <div class="mermaid-box">
+      <h3>Value vs. Effort Matrix</h3>
+      <div class="quadrant">
+        <div class="q q1">
+          <h4>⚡ Quick Wins</h4>
+          <p>High Value, Low Effort<br/><strong>→ Do first!</strong></p>
+        </div>
+        <div class="q q2">
+          <h4>🎲 Big Bets</h4>
+          <p>High Value, High Effort<br/><strong>→ Plan carefully</strong></p>
+        </div>
+        <div class="q q3">
+          <h4>🔧 Fill-ins</h4>
+          <p>Low Value, Low Effort<br/><strong>→ Do if time allows</strong></p>
+        </div>
+        <div class="q q4">
+          <h4>💸 Money Pit</h4>
+          <p>Low Value, High Effort<br/><strong>→ Don't do!</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:20px;">
+    <div class="card">
+      <h3>MoSCoW Method</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <div style="background:rgba(0,201,167,.12);padding:10px 16px;border-radius:8px;"><strong style="color:#00c9a7;">Must Have</strong> — Critical for launch</div>
+        <div style="background:rgba(108,99,255,.12);padding:10px 16px;border-radius:8px;"><strong style="color:#a5a0ff;">Should Have</strong> — Important but not critical</div>
+        <div style="background:rgba(255,195,113,.12);padding:10px 16px;border-radius:8px;"><strong style="color:#ffc371;">Could Have</strong> — Nice to have</div>
+        <div style="background:rgba(247,121,125,.12);padding:10px 16px;border-radius:8px;"><strong style="color:#f7797d;">Won't Have</strong> — Excluded from scope</div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Kano Model</h3>
+      <div class="chart-wrap"><canvas id="kanoChart"></canvas></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 14. STAKEHOLDERS -->
+<!-- ============================================================ -->
+<section id="stakeholders">
+  <div class="section-title"><div class="num">14</div> Working with People & Stakeholders</div>
+
+  <div class="mermaid-box">
+    <h3>The PM's Communication Web</h3>
+    <pre class="mermaid">
+    graph TD
+      PM["🧑‍💼 Product<br/>Manager"]:::pm
+      ENG["⚙️ Engineers"]:::team
+      DES["🎨 Designers"]:::team
+      EXEC["👔 Executives"]:::stake
+      SALES["📈 Sales"]:::stake
+      MKT["📢 Marketing"]:::stake
+      LEGAL["⚖️ Legal"]:::stake
+      SUPPORT["🎧 Support"]:::stake
+      USERS["👥 Users"]:::user
+      PM --> ENG
+      PM --> DES
+      PM --> EXEC
+      PM --> SALES
+      PM --> MKT
+      PM --> LEGAL
+      PM --> SUPPORT
+      PM --> USERS
+      classDef pm fill:#6c63ff,stroke:none,color:#fff,font-weight:bold
+      classDef team fill:#1a2d2a,stroke:#00c9a7,color:#00c9a7,stroke-width:1px
+      classDef stake fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:1px
+      classDef user fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:1px
+    </pre>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card" style="border-top:3px solid var(--accent2);">
+      <h3>⚙️ Talking to Engineers</h3>
+      <ul>
+        <li>Tell <em>what</em>, not <em>how</em></li>
+        <li>Give context — the "why"</li>
+        <li>Trust their estimates</li>
+        <li>Include them early</li>
+        <li>Be their shield</li>
+        <li>Credit them</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--accent);">
+      <h3>🎨 Talking to Designers</h3>
+      <ul>
+        <li>Bring them in early</li>
+        <li>Share user research</li>
+        <li>Provide problems, not solutions</li>
+        <li>Collaborate visually</li>
+        <li>Give specific, constructive feedback</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--accent4);">
+      <h3>👔 Talking to Executives</h3>
+      <ul>
+        <li>Be data-driven</li>
+        <li>Be concise</li>
+        <li>Tell a story</li>
+        <li>Anticipate questions</li>
+        <li>Align with company goals</li>
+        <li>Regular updates</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mermaid-box" style="margin-top:20px;">
+    <h3>Stakeholder Power/Interest Grid</h3>
+    <div class="quadrant">
+      <div class="q q2" style="border:2px solid var(--accent);">
+        <h4>🎯 Manage Closely</h4>
+        <p>High Power + High Interest<br/><em>Key players</em></p>
+      </div>
+      <div class="q q3">
+        <h4>😊 Keep Satisfied</h4>
+        <p>High Power + Low Interest</p>
+      </div>
+      <div class="q q1">
+        <h4>📋 Keep Informed</h4>
+        <p>Low Power + High Interest</p>
+      </div>
+      <div class="q q4">
+        <h4>👁️ Monitor</h4>
+        <p>Low Power + Low Interest</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 15. TECHNOLOGY -->
+<!-- ============================================================ -->
+<section id="tech">
+  <div class="section-title"><div class="num">15</div> Technology for Product Managers</div>
+
+  <div class="mermaid-box">
+    <h3>The Tech Stack — How Software is Built</h3>
+    <pre class="mermaid">
+    graph TB
+      subgraph Frontend["🖥️ FRONT END — What users see"]
+        HTML["HTML"]:::fe
+        CSS["CSS"]:::fe
+        JS["JavaScript"]:::fe
+        FW["React / Angular / Vue"]:::fe
+      end
+      subgraph Backend["⚙️ BACK END — Server logic"]
+        LANG["Python / Ruby / Java / Node.js"]:::be
+        FWB["Django / Rails / Spring"]:::be
+      end
+      subgraph Data["🗄️ DATABASE"]
+        DB["MySQL / PostgreSQL / MongoDB"]:::db
+      end
+      subgraph Infra["☁️ INFRASTRUCTURE"]
+        CLOUD["AWS / GCP / Azure"]:::inf
+        DEVOPS["Docker / Kubernetes / CI-CD"]:::inf
+      end
+      Frontend <-->|"API Requests"| Backend
+      Backend <--> Data
+      Backend <--> Infra
+      classDef fe fill:#1a2d2a,stroke:#00c9a7,color:#00c9a7,stroke-width:1px
+      classDef be fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:1px
+      classDef db fill:#2d201a,stroke:#ffc371,color:#ffc371,stroke-width:1px
+      classDef inf fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:1px
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="mermaid-box">
+      <h3>How APIs Work (Restaurant Analogy)</h3>
+      <pre class="mermaid">
+      sequenceDiagram
+        participant U as 👤 User (Client)
+        participant A as 🍽️ API (Waiter)
+        participant S as 🏭 Server (Kitchen)
+        U->>A: Request (order)
+        A->>S: Forward request
+        S->>A: Response (food)
+        A->>U: Deliver response
+      </pre>
+    </div>
+    <div class="card">
+      <h3>🗃️ SQL Basics for PMs</h3>
+      <div style="background:var(--card-alt);padding:14px;border-radius:10px;margin:8px 0;font-family:monospace;font-size:.85rem;color:var(--accent2);">
+        <div style="color:var(--accent);">SELECT</div> *<br/>
+        <div style="color:var(--accent);">FROM</div> users<br/>
+        <div style="color:var(--accent);">WHERE</div> signup_date > '2023-01-01'<br/>
+        <div style="color:var(--accent);">GROUP BY</div> country<br/>
+        <div style="color:var(--accent);">ORDER BY</div> count <div style="color:var(--accent);">DESC</div>
+      </div>
+      <div class="pill-list" style="margin-top:12px;">
+        <span class="pill" style="color:var(--accent2);border-color:var(--accent2);">SELECT</span>
+        <span class="pill" style="color:var(--accent2);border-color:var(--accent2);">FROM</span>
+        <span class="pill" style="color:var(--accent2);border-color:var(--accent2);">WHERE</span>
+        <span class="pill" style="color:var(--accent2);border-color:var(--accent2);">JOIN</span>
+        <span class="pill" style="color:var(--accent2);border-color:var(--accent2);">GROUP BY</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- 16. CAREER -->
+<!-- ============================================================ -->
+<section id="career">
+  <div class="section-title"><div class="num">16</div> Career — Getting & Excelling at the Job</div>
+
+  <div class="mermaid-box">
+    <h3>PM Career Ladder</h3>
+    <pre class="mermaid">
+    graph LR
+      APM["🌱 Associate PM<br/>Entry-level"]:::l1
+      PM["🧑‍💼 Product Manager<br/>Own a product area"]:::l2
+      SPM["⭐ Senior PM<br/>Complex products"]:::l3
+      GPM["👑 Group PM / Director<br/>Manage PMs"]:::l4
+      VP["🏛️ VP of Product<br/>Company strategy"]:::l5
+      CPO["🎖️ CPO<br/>C-Suite"]:::l6
+      APM --> PM --> SPM --> GPM --> VP --> CPO
+      classDef l1 fill:#222636,stroke:#38bdf8,color:#38bdf8,stroke-width:2px
+      classDef l2 fill:#222636,stroke:#00c9a7,color:#00c9a7,stroke-width:2px
+      classDef l3 fill:#222636,stroke:#6c63ff,color:#a5a0ff,stroke-width:2px
+      classDef l4 fill:#222636,stroke:#ffc371,color:#ffc371,stroke-width:2px
+      classDef l5 fill:#222636,stroke:#f7797d,color:#f7797d,stroke-width:2px
+      classDef l6 fill:#6c63ff,stroke:none,color:#fff
+    </pre>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>📅 First 90 Days as a New PM</h3>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+        <div style="background:rgba(56,189,248,.1);padding:14px;border-radius:10px;border-left:3px solid #38bdf8;">
+          <strong style="color:#38bdf8;">Days 1–30: LEARN</strong>
+          <p style="font-size:.82rem;color:var(--muted);">Understand the product, meet everyone, review data & metrics, learn the business model, listen more than talk.</p>
+        </div>
+        <div style="background:rgba(108,99,255,.1);padding:14px;border-radius:10px;border-left:3px solid var(--accent);">
+          <strong style="color:var(--accent);">Days 30–60: CONTRIBUTE</strong>
+          <p style="font-size:.82rem;color:var(--muted);">Identify quick wins, build relationships, participate in planning, make small improvements.</p>
+        </div>
+        <div style="background:rgba(0,201,167,.1);padding:14px;border-radius:10px;border-left:3px solid var(--accent2);">
+          <strong style="color:var(--accent2);">Days 60–90: LEAD</strong>
+          <p style="font-size:.82rem;color:var(--muted);">Take ownership, drive initiatives, present recommendations, set longer-term vision.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🏆 Traits of Excellent PMs</h3>
+      <div class="chart-wrap"><canvas id="traitsChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:20px;">
+    <div class="card">
+      <h3>🎯 PM Interview Types</h3>
+      <div class="mermaid-box" style="border:none;padding:0;margin:0;background:transparent;">
+        <pre class="mermaid">
+        graph TD
+          INT["📞 Phone Screen"]:::s --> DESIGN["🎨 Product Design<br/>CIRCLES method"]:::s
+          DESIGN --> METRICS["📊 Analytical<br/>Define success metrics"]:::s
+          METRICS --> TECH["⚙️ Technical<br/>System understanding"]:::s
+          TECH --> BEH["🗣️ Behavioral<br/>STAR method"]:::s
+          BEH --> CASE["📑 Case Study<br/>Strategy presentation"]:::s
+          classDef s fill:#222636,stroke:#6c63ff,color:#e4e4e7,stroke-width:1px
+        </pre>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🚫 Common PM Mistakes</h3>
+      <ul>
+        <li>❌ Not talking to users enough</li>
+        <li>❌ Too attached to your ideas</li>
+        <li>❌ Not using data</li>
+        <li>❌ Saying yes to everything</li>
+        <li>❌ Micromanaging engineers</li>
+        <li>❌ Ignoring stakeholders</li>
+        <li>❌ Not celebrating wins</li>
+        <li>❌ Focusing on features over outcomes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:20px;">
+    <div class="card">
+      <h3>🏢 Startup PM vs. Large Company PM</h3>
+      <table class="cmp-table">
+        <tr><th></th><th>Startup</th><th>Large Company</th></tr>
+        <tr><td>Scope</td><td>Broad, many hats</td><td>Specialized</td></tr>
+        <tr><td>Influence</td><td>High, direct impact</td><td>Scoped to area</td></tr>
+        <tr><td>Pace</td><td>Fast, ambiguous</td><td>Structured</td></tr>
+        <tr><td>Resources</td><td>Limited</td><td>Abundant</td></tr>
+        <tr><td>Risk</td><td>Higher</td><td>Lower</td></tr>
+        <tr><td>Learning</td><td>Steep curve</td><td>Deep expertise</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>🧰 Essential PM Toolkit</h3>
+      <div class="grid grid-2" style="gap:8px;margin-top:8px;">
+        <div><span style="font-size:.75rem;color:var(--accent);font-weight:600;text-transform:uppercase;">Project Mgmt</span>
+          <div class="pill-list"><span class="pill">Jira</span><span class="pill">Trello</span><span class="pill">Asana</span></div></div>
+        <div><span style="font-size:.75rem;color:var(--accent2);font-weight:600;text-transform:uppercase;">Analytics</span>
+          <div class="pill-list"><span class="pill">Mixpanel</span><span class="pill">Amplitude</span><span class="pill">GA</span></div></div>
+        <div><span style="font-size:.75rem;color:var(--accent4);font-weight:600;text-transform:uppercase;">Design</span>
+          <div class="pill-list"><span class="pill">Figma</span><span class="pill">Sketch</span></div></div>
+        <div><span style="font-size:.75rem;color:var(--accent3);font-weight:600;text-transform:uppercase;">Docs</span>
+          <div class="pill-list"><span class="pill">Notion</span><span class="pill">Confluence</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- container -->
+
+<footer>
+  <p>Visual guide generated from Udemy course transcript — "Become a Product Manager" · All content credit to course creators</p>
+</footer>
+
+<script>
+// Initialize Mermaid
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#6c63ff',
+    primaryTextColor: '#e4e4e7',
+    primaryBorderColor: '#6c63ff',
+    lineColor: '#6c63ff',
+    secondaryColor: '#222636',
+    tertiaryColor: '#222636',
+    background: '#1a1d27',
+    mainBkg: '#222636',
+    nodeBorder: '#6c63ff',
+    fontFamily: 'Segoe UI, system-ui, sans-serif',
+    fontSize: '13px'
+  },
+  flowchart: { curve: 'basis', padding: 15 },
+  sequence: { actorMargin: 40 }
+});
+
+// Chart.js defaults
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.borderColor = '#2e3348';
+Chart.defaults.font.family = 'Segoe UI, system-ui, sans-serif';
+
+// PM Types Radar Chart
+new Chart(document.getElementById('pmTypesChart'), {
+  type: 'radar',
+  data: {
+    labels: ['User Base Size', 'Risk Level', 'Sales Interaction', 'Creative Freedom', 'Technical Depth', 'Pressure'],
+    datasets: [
+      { label: 'Internal PM', data: [2, 2, 2, 4, 5, 2], borderColor: '#6c63ff', backgroundColor: 'rgba(108,99,255,.1)', pointBackgroundColor: '#6c63ff' },
+      { label: 'B2B PM', data: [4, 4, 9, 5, 4, 5], borderColor: '#00c9a7', backgroundColor: 'rgba(0,201,167,.1)', pointBackgroundColor: '#00c9a7' },
+      { label: 'B2C PM', data: [10, 9, 3, 8, 6, 9], borderColor: '#f7797d', backgroundColor: 'rgba(247,121,125,.1)', pointBackgroundColor: '#f7797d' }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: { r: { suggestedMin: 0, suggestedMax: 10, grid: { color: '#2e3348' }, angleLines: { color: '#2e3348' }, pointLabels: { font: { size: 11 } } } },
+    plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } }
+  }
+});
+
+// Product Lifecycle Chart
+new Chart(document.getElementById('lifecycleChart'), {
+  type: 'line',
+  data: {
+    labels: ['', 'Launch', '', '', '', '', 'Growth Peak', '', '', 'Maturity Peak', '', '', '', 'Decline', '', ''],
+    datasets: [{
+      label: 'Revenue',
+      data: [0, 2, 5, 12, 22, 38, 55, 70, 82, 88, 86, 80, 70, 55, 38, 22],
+      borderColor: '#6c63ff',
+      backgroundColor: (ctx) => {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 300);
+        g.addColorStop(0, 'rgba(108,99,255,.3)');
+        g.addColorStop(1, 'rgba(108,99,255,0)');
+        return g;
+      },
+      fill: true,
+      tension: 0.4,
+      pointRadius: 0,
+      borderWidth: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      annotation: {}
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { display: false }
+    }
+  }
+});
+
+// Wireframe fidelity chart
+new Chart(document.getElementById('wireframeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Lo-Fi', 'Mid-Fi', 'Hi-Fi'],
+    datasets: [
+      { label: 'Speed', data: [95, 65, 30], backgroundColor: 'rgba(0,201,167,.6)' },
+      { label: 'Detail', data: [20, 55, 95], backgroundColor: 'rgba(108,99,255,.6)' },
+      { label: 'Cost', data: [10, 40, 85], backgroundColor: 'rgba(247,121,125,.5)' }
+    ]
+  },
+  options: {
+    responsive: true,
+    indexAxis: 'y',
+    scales: { x: { display: false, max: 100 }, y: { grid: { display: false } } },
+    plugins: { legend: { position: 'bottom', labels: { padding: 10, usePointStyle: true, font: { size: 10 } } } }
+  }
+});
+
+// Fibonacci chart
+new Chart(document.getElementById('fibChart'), {
+  type: 'bar',
+  data: {
+    labels: ['1', '2', '3', '5', '8', '13', '21'],
+    datasets: [{
+      label: 'Story Points',
+      data: [1, 2, 3, 5, 8, 13, 21],
+      backgroundColor: ['rgba(56,189,248,.7)', 'rgba(0,201,167,.7)', 'rgba(108,99,255,.7)', 'rgba(108,99,255,.7)', 'rgba(255,195,113,.7)', 'rgba(247,121,125,.7)', 'rgba(247,121,125,.9)'],
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { display: false }, x: { grid: { display: false } } }
+  }
+});
+
+// Kano model chart
+new Chart(document.getElementById('kanoChart'), {
+  type: 'line',
+  data: {
+    labels: ['Not Implemented', '', '', 'Partially', '', '', 'Fully Implemented'],
+    datasets: [
+      {
+        label: 'Delighters',
+        data: [0, 5, 20, 40, 60, 80, 95],
+        borderColor: '#00c9a7', backgroundColor: 'transparent', tension: 0.4, borderWidth: 2.5, pointRadius: 0
+      },
+      {
+        label: 'Performance',
+        data: [-40, -25, -10, 10, 30, 50, 70],
+        borderColor: '#6c63ff', backgroundColor: 'transparent', tension: 0, borderWidth: 2.5, pointRadius: 0
+      },
+      {
+        label: 'Must-Be (Basic)',
+        data: [-80, -60, -35, -15, -5, 0, 5],
+        borderColor: '#f7797d', backgroundColor: 'transparent', tension: 0.4, borderWidth: 2.5, pointRadius: 0
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      x: { grid: { display: false }, title: { display: true, text: 'Implementation →', color: '#9ca3af', font: { size: 10 } } },
+      y: { grid: { color: '#2e334855' }, title: { display: true, text: 'Satisfaction →', color: '#9ca3af', font: { size: 10 } }, ticks: { display: false } }
+    },
+    plugins: { legend: { position: 'bottom', labels: { padding: 12, usePointStyle: true, font: { size: 11 } } } }
+  }
+});
+
+// PM Traits radar
+new Chart(document.getElementById('traitsChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Customer\nObsession', 'Data-Driven', 'Communication', 'Prioritization', 'Collaboration', 'Adaptability', 'Ownership', 'Continuous\nLearning'],
+    datasets: [{
+      label: 'Excellent PM Profile',
+      data: [10, 9, 10, 9, 9, 8, 9, 8],
+      borderColor: '#00c9a7',
+      backgroundColor: 'rgba(0,201,167,.12)',
+      pointBackgroundColor: '#00c9a7',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: { r: { suggestedMin: 0, suggestedMax: 10, grid: { color: '#2e3348' }, angleLines: { color: '#2e3348' }, pointLabels: { font: { size: 10 } } } },
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+</body>
+</html>
